@@ -6,14 +6,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-    const tokenAddress = process.env.DEPOSIT_TOKEN_ADDRESS || "0xFE724a829fdF12F7012365dB98730EEe33742ea2";
-    const contractAddress = (await load('DepositContract')).address
-    console.log(contractAddress)
+    const contractAddress = (await load('PolarysNFTContract')).address
     await hre.run("verify:verify", {
         address: contractAddress,
-        constructorArguments: [
-            tokenAddress
-        ],
+        constructorArguments: ["PolarysNFT", "PLY"],
     });
 }
 
