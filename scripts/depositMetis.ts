@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat';
-import { formatUnits } from "ethers/lib/utils";
+import { formatUnits, parseEther } from "ethers/lib/utils";
 import { PolarysNFTContract } from "../typechain-types";
 
 import 'dotenv/config';
@@ -23,7 +23,7 @@ async function main () {
   await (
     await nftContract
     .connect(signer)
-    .setupMinterRole(minterWalletAddress)
+    .depositMetis({value: parseEther('0.5')})
   ).wait();
   
 }

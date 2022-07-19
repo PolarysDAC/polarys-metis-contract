@@ -17,8 +17,9 @@ async function main () {
   const DECIMALS = 6;
   const PRIVATE_SALE_PRICE = 200.5;
   const PUBLIC_SALE_PRICE = 220.5;
+  const ROYALTY_FEE = 250;   // 2.5% royalty fee
 
-  const walletAddress = String(process.env.WALLET_ADDRESS)
+  const minterWalletAddress = String(process.env.MINTER_WALLET)
   const nftContractAddress = (await load('PolarysNFTContract')).address
 
   nftContract = (await ethers.getContractAt("PolarysNFTContract", nftContractAddress)) as PolarysNFTContract;
@@ -38,6 +39,21 @@ async function main () {
   const newPublicPrice = formatUnits(await nftContract.getPublicSalePrice(), DECIMALS);
   console.log("pubicSale price after set price: ", newPublicPrice);
 
+  
+  await (
+    await nftContract
+    .connect(signer)
+    .setupMinterRole(minterWalletAddress)
+  ).wait();
+  console.log("Setup minter role");
+
+  await (
+    await nftContract
+    .connect(signer)
+    .setRoyaltyFee(ROYALTY_FEE)
+  ).wait();
+  const newRoyaltyFee = formatUnits(await nftContract.getRoyaltyFee(), 0);
+  console.log("royalty fee: ", newRoyaltyFee);
 }
 
 main()
