@@ -13,8 +13,13 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
 
     using Strings for uint256;
 
-    event MetisDeposited(uint256 indexed amount);
+    event DepositedMetis(uint256 indexed amount);
     event NFTMinted(address indexed recipient, uint256 quantity);
+    event SetPrivateSalePrice(uint256 price);
+    event SetPublicSalePrice(uint256 price);
+    event SetBaseURI(string baseURI);
+    event SetRoyaltyFee(uint96 fee);
+    event WithdrewMetis(address indexed to, uint256 amount);
 
     string private baseURI;
     uint256 private constant MAX_SUPPLY = 2500;
@@ -44,34 +49,37 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
 
     function setPrivateSalePrice(uint256 price) external onlyOwner whenNotPaused {
         _privateSalePrice = price;
+        emit SetPrivateSalePrice(price);
     }
 
     function setPublicSalePrice(uint256 price) external onlyOwner whenNotPaused {
         _publicSalePrice = price;
+        emit SetPublicSalePrice(price);
     }
     
     function setRoyaltyFee(uint96 fee) external onlyOwner whenNotPaused {
         _royaltyFee = fee;
+        emit SetRoyaltyFee(fee);
     }
     
-    function getRoyaltyFee() view public returns(uint96) {
+    function getRoyaltyFee() view external returns(uint96) {
         return _royaltyFee;
     }
 
-    function getPrivateSalePrice() view public returns(uint256) {
+    function getPrivateSalePrice() view external returns(uint256) {
         return _privateSalePrice;
     }
 
-    function getPublicSalePrice() view public returns(uint256) {
+    function getPublicSalePrice() view external returns(uint256) {
         return _publicSalePrice;
     }
 
     /**
     @dev Deposit metis
      */
-    function depositMetis() public payable {
+    function depositMetis() external payable {
         metisBalance += msg.value;
-        emit MetisDeposited(msg.value);
+        emit DepositedMetis(msg.value);
     }
 
     /**
@@ -87,9 +95,10 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
      */
     function setBaseURI(string calldata _baseURI) external onlyOwner {
         baseURI = _baseURI;
+        emit SetBaseURI(_baseURI);
     }
 
-    function exists(uint256 tokenId) public view returns (bool) {
+    function exists(uint256 tokenId) external view returns (bool) {
         return _exists(tokenId);
     }
 
@@ -100,9 +109,9 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
      * @param to recipient address
      * @param quantity NFT quantity to mint
      */
-    function mint(address to, uint256 quantity) external whenNotPaused onlyRole(MINTER_ROLE) nonReentrant {
+    function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) nonReentrant {
         require(to.code.length == 0, "Can not mint NFT to contract address");
-        require(to != address(0), "Should not be zero address");
+        require(quantity <= 50, "Can not mint NFTs more than 50 NFTs at one transaction");
         require(_currentSupply + quantity <= MAX_SUPPLY, "Can not mint NFT more than MAX_SUPPLY");
         
         if (address(to).balance == 0 && metisBalance >= GIFT_METIS) {
@@ -117,13 +126,23 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
             for (uint256 i = _currentSupply; i < _currentSupply + quantity; i++) {
                 _setTokenRoyalty(i, to, _royaltyFee);
             }
+            _currentSupply += quantity;
         }
-        _currentSupply += quantity;
         
         if (MAX_SUPPLY == _currentSupply) {
             _pause();
         }
 
         emit NFTMinted(to, quantity);
+    }
+
+    function withdrawMetis(address to) external onlyOwner nonReentrant whenPaused {
+        require(metisBalance > 0, "No balance");
+        require(to.code.length == 0, "Can not withraw Metis to contract address");
+        uint256 balance = metisBalance;
+        (bool sent, ) = payable(to).call{value: balance}("");
+        require(sent, "Failed to withdraw Metis");
+        metisBalance = 0;
+        emit WithdrewMetis(to, balance);
     }
 }

@@ -19,11 +19,19 @@ const chainIds = {
 
 const PRIVATE_KEY = process.env.PK || "";
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || "";
+const MNEMONIC_SEED = process.env.MNEMONIC_SEED || "";
 
 const config = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
+      // accounts: {
+      //   mnemonic: MNEMONIC_SEED || ''
+      // },
+      // // blockGasLimit: 30000000,
+      // forking: {
+      //   url: "https://andromeda.metis.io/?owner=1088"
+      // }
     },
     stardust: {
       url: "https://stardust.metis.io/?owner=588",
