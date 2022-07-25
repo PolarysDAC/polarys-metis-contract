@@ -28,7 +28,7 @@ const config = {
       // accounts: {
       //   mnemonic: MNEMONIC_SEED || ''
       // },
-      // // blockGasLimit: 30000000,
+      // blockGasLimit: 30000000,
       // forking: {
       //   url: "https://andromeda.metis.io/?owner=1088"
       // }
