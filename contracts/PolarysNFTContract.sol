@@ -58,6 +58,7 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
     }
     
     function setRoyaltyFee(uint96 fee) external onlyOwner whenNotPaused {
+        require(fee < 10000, "Incorrect royalty fee");
         _royaltyFee = fee;
         emit SetRoyaltyFee(fee);
     }
