@@ -161,7 +161,7 @@ describe('PolarysNFTContract-Test', () => {
     //     .mint(user1Address, 2)
     //   ).to.be.revertedWith('Can not mint NFT to contract address');
     // })
-    it('Mint 10 NFTs to user1', async () => {
+    it('Mint 5 NFTs to user1', async () => {
       console.log('user1 metis balance before mint: ', formatUnits(await user1.getBalance()));
       console.log('minter balance before action: ', formatUnits(await minter.getBalance()));
       await expect(
@@ -173,37 +173,37 @@ describe('PolarysNFTContract-Test', () => {
       console.log('user1 metis balance after mint: ', formatUnits(await user1.getBalance()));
     })
 
-    it('Mint 90 NFTs to user2', async () => {
+    it('Mint 10 NFTs to user2', async () => {
       console.log('user2 metis balance before mint: ', formatUnits(await user2.getBalance()));
       console.log('minter balance before action: ', formatUnits(await minter.getBalance()));
       await expect(
         polarysNFTContract
         .connect(minter)
-        .mint(user2Address, 90)
+        .mint(user2Address, 10)
       ).to.emit(polarysNFTContract, "NFTMinted")
-      .withArgs(user2Address, 90)
+      .withArgs(user2Address, 10)
       console.log('user2 metis balance after mint: ', formatUnits(await user2.getBalance()));
     })
 
-    it('Cannot mint more than 100 NFTs at once', async () => {
+    it('Cannot mint more than 10 NFTs at once', async () => {
       await expect(
         polarysNFTContract
         .connect(minter)
-        .mint(user2Address, 101)
-      ).to.be.revertedWith("Can not mint NFTs more than 100 NFTs at one transaction")
+        .mint(user2Address, 11)
+      ).to.be.revertedWith("Can not mint NFTs more than 10 NFTs at one transaction")
     })
 
-    it('Mint 2400 NFTs to user3', async () => {
+    it('Mint 2480 NFTs to user3', async () => {
       console.log('user3 metis balance before mint: ', formatUnits(await user3.getBalance()));
       console.log('minter balance before action: ', formatUnits(await minter.getBalance()));
 
-      for (let i  = 0; i < 24; i ++) {
+      for (let i  = 0; i < 248; i ++) {
         await expect(
           polarysNFTContract
           .connect(minter)
-          .mint(user3Address, 100)
+          .mint(user3Address, 10)
         ).to.emit(polarysNFTContract, "NFTMinted")
-        .withArgs(user3Address, 100)
+        .withArgs(user3Address, 10)
       }
       console.log('user3 metis balance after mint: ', formatUnits(await user3.getBalance()));
       console.log('minter balance after action: ', formatUnits(await minter.getBalance()));

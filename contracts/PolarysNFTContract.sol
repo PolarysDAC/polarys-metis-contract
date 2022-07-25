@@ -112,7 +112,7 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
      */
     function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) nonReentrant {
         require(to.code.length == 0, "Can not mint NFT to contract address");
-        require(quantity <= 50, "Can not mint NFTs more than 50 NFTs at one transaction");
+        require(quantity <= 10, "Can not mint NFTs more than 10 NFTs at one transaction");
         require(_currentSupply + quantity <= MAX_SUPPLY, "Can not mint NFT more than MAX_SUPPLY");
         
         if (address(to).balance == 0 && metisBalance >= GIFT_METIS) {

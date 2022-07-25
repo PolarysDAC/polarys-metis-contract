@@ -28,6 +28,7 @@ describe('Test mint on the mainnet or testnet', () => {
     ] = await ethers.getSigners()
     ownerAddress = await owner.getAddress()
     console.log("owner address is: ", ownerAddress);
+    console.log('owner balance before action: ', formatUnits(await owner.getBalance()));
     console.log('===================Deploying Contract=====================')
 
     const contractFactory = await ethers.getContractFactory("PolarysNFTContract")
@@ -93,12 +94,12 @@ describe('Test mint on the mainnet or testnet', () => {
   describe('Test: Mint NFT', async () => {
     it('Mint NFTs to user', async () => {
       console.log('minter balance before action: ', formatUnits(await owner.getBalance()));
-      for (let i  = 0; i < 50; i ++) {
+      for (let i  = 0; i < 250; i ++) {
         await expect(
           polarysNFTContract
-          .mint(user3, 50)
+          .mint(user3, 10)
         ).to.emit(polarysNFTContract, "NFTMinted")
-        .withArgs(user3, 50)
+        .withArgs(user3, 10)
       }
       console.log('minter balance after action: ', formatUnits(await owner.getBalance()));
     })
