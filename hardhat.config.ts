@@ -30,7 +30,7 @@ const config = {
       // },
       // blockGasLimit: 30000000,
       // forking: {
-      //   url: "https://andromeda.metis.io/?owner=1088"
+      //   url: "https://eth-mainnet.alchemyapi.io/v2/vgTRoIFgDT6vHZFsB-sH1vQ7vZ30OhAP"
       // }
     },
     stardust: {
@@ -55,7 +55,7 @@ const config = {
   solidity: {
     compilers: [
       {
-        version: "0.8.13",
+        version: "0.8.15",
         settings: {
           optimizer: {
             enabled: true,

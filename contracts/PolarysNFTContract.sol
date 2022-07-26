@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -9,7 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "./ERC721B.sol";
 
-contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessControl, ReentrancyGuard {
+contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, ReentrancyGuard {
 
     using Strings for uint256;
 
@@ -34,7 +33,9 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
     constructor(
         string memory name_, 
         string memory symbol_
-    ) ERC721B(name_, symbol_) {}
+    ) ERC721B(name_, symbol_) {
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+    }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721B, AccessControl, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
@@ -43,21 +44,21 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
     /**
     @dev Setup minter role
      */
-    function setupMinterRole(address account) external onlyOwner {
+    function setupMinterRole(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(MINTER_ROLE, account);
     }
 
-    function setPrivateSalePrice(uint256 price) external onlyOwner whenNotPaused {
+    function setPrivateSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
         _privateSalePrice = price;
         emit SetPrivateSalePrice(price);
     }
 
-    function setPublicSalePrice(uint256 price) external onlyOwner whenNotPaused {
+    function setPublicSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
         _publicSalePrice = price;
         emit SetPublicSalePrice(price);
     }
     
-    function setRoyaltyFee(uint96 fee) external onlyOwner whenNotPaused {
+    function setRoyaltyFee(uint96 fee) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
         require(fee < 10000, "Incorrect royalty fee");
         _royaltyFee = fee;
         emit SetRoyaltyFee(fee);
@@ -94,7 +95,7 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
     /**
      * Set base URI of NFT
      */
-    function setBaseURI(string calldata _baseURI) external onlyOwner {
+    function setBaseURI(string calldata _baseURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseURI = _baseURI;
         emit SetBaseURI(_baseURI);
     }
@@ -137,7 +138,7 @@ contract PolarysNFTContract is ERC2981, ERC721B, Ownable, Pausable, AccessContro
         emit NFTMinted(to, quantity);
     }
 
-    function withdrawMetis(address to) external onlyOwner nonReentrant whenPaused {
+    function withdrawMetis(address to) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant whenPaused {
         require(metisBalance > 0, "No balance");
         require(to.code.length == 0, "Can not withraw Metis to contract address");
         uint256 balance = metisBalance;
