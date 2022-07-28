@@ -22,11 +22,9 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
 
     string private baseURI;
     uint256 private constant MAX_SUPPLY = 2500;
-    uint256 private _currentSupply;
     uint256 private constant GIFT_METIS = 1e16;     //0.01 Metis
     uint256 private _privateSalePrice;
     uint256 private _publicSalePrice;
-    uint256 public metisBalance;
     uint96 private _royaltyFee;
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
@@ -49,11 +47,13 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
     }
 
     function setPrivateSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
+        require(price <= 1000, "Should not exceed 1000");
         _privateSalePrice = price;
         emit SetPrivateSalePrice(price);
     }
 
     function setPublicSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
+        require(price <= 1000, "Should not exceed 1000");
         _publicSalePrice = price;
         emit SetPublicSalePrice(price);
     }
@@ -80,7 +80,6 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
     @dev Deposit metis
      */
     function depositMetis() external payable {
-        metisBalance += msg.value;
         emit DepositedMetis(msg.value);
     }
 
@@ -114,10 +113,10 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
     function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) nonReentrant {
         require(to.code.length == 0, "Can not mint NFT to contract address");
         require(quantity <= 10, "Can not mint NFTs more than 10 NFTs at one transaction");
-        require(_currentSupply + quantity <= MAX_SUPPLY, "Can not mint NFT more than MAX_SUPPLY");
+        uint256 currentSupply = _owners.length;
+        require(currentSupply + quantity <= MAX_SUPPLY, "Can not mint NFT more than MAX_SUPPLY");
         
-        if (address(to).balance == 0 && metisBalance >= GIFT_METIS) {
-            metisBalance -= GIFT_METIS;
+        if (address(to).balance == 0 && address(this).balance >= GIFT_METIS) {
             (bool sent, ) = payable(to).call{value: GIFT_METIS}("");
             require(sent, "Failed to send Metis");
         }
@@ -125,13 +124,12 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
         
         // Set token royalty per each tokenId
         unchecked {
-            for (uint256 i = _currentSupply; i < _currentSupply + quantity; i++) {
+            for (uint256 i = currentSupply; i < currentSupply + quantity; i++) {
                 _setTokenRoyalty(i, to, _royaltyFee);
             }
-            _currentSupply += quantity;
         }
         
-        if (MAX_SUPPLY == _currentSupply) {
+        if (_owners.length == MAX_SUPPLY) {
             _pause();
         }
 
@@ -139,12 +137,11 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
     }
 
     function withdrawMetis(address to) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant whenPaused {
-        require(metisBalance > 0, "No balance");
+        require(address(this).balance > 0, "No balance");
         require(to.code.length == 0, "Can not withraw Metis to contract address");
-        uint256 balance = metisBalance;
+        uint256 balance = address(this).balance;
         (bool sent, ) = payable(to).call{value: balance}("");
         require(sent, "Failed to withdraw Metis");
-        metisBalance = 0;
         emit WithdrewMetis(to, balance);
     }
 }

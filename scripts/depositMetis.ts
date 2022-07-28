@@ -23,7 +23,7 @@ async function main () {
   await (
     await nftContract
     .connect(signer)
-    .depositMetis({value: parseEther('0.5')})
+    .depositMetis({value: parseEther('0.05')})
   ).wait();
   
 }
