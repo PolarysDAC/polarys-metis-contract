@@ -2,13 +2,12 @@
 pragma solidity 0.8.15;
 
 import '@openzeppelin/contracts/utils/Strings.sol';
-import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "./ERC721B.sol";
 
-contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, ReentrancyGuard {
+contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard {
 
     using Strings for uint256;
 
@@ -46,19 +45,19 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
         _grantRole(MINTER_ROLE, account);
     }
 
-    function setPrivateSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
+    function setPrivateSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(price <= 1000, "Should not exceed 1000");
         _privateSalePrice = price;
         emit SetPrivateSalePrice(price);
     }
 
-    function setPublicSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
+    function setPublicSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(price <= 1000, "Should not exceed 1000");
         _publicSalePrice = price;
         emit SetPublicSalePrice(price);
     }
     
-    function setRoyaltyFee(uint96 fee) external onlyRole(DEFAULT_ADMIN_ROLE) whenNotPaused {
+    function setRoyaltyFee(uint96 fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(fee < 10000, "Incorrect royalty fee");
         _royaltyFee = fee;
         emit SetRoyaltyFee(fee);
@@ -122,21 +121,19 @@ contract PolarysNFTContract is ERC2981, ERC721B, Pausable, AccessControl, Reentr
         }
         _mint(to, quantity);
         
+        
         // Set token royalty per each tokenId
         unchecked {
+            uint96 royaltyFee = _royaltyFee;
             for (uint256 i = currentSupply; i < currentSupply + quantity; i++) {
-                _setTokenRoyalty(i, to, _royaltyFee);
+                _setTokenRoyalty(i, to, royaltyFee);
             }
-        }
-        
-        if (_owners.length == MAX_SUPPLY) {
-            _pause();
         }
 
         emit NFTMinted(to, quantity);
     }
 
-    function withdrawMetis(address to) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant whenPaused {
+    function withdrawMetis(address to) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant {
         require(address(this).balance > 0, "No balance");
         require(to.code.length == 0, "Can not withraw Metis to contract address");
         uint256 balance = address(this).balance;
