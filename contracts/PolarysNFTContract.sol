@@ -18,6 +18,14 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
     event SetBaseURI(string baseURI);
     event SetRoyaltyFee(uint96 fee);
     event WithdrewMetis(address indexed to, uint256 amount);
+    event StartedPrivateSale(uint256 timestamp);
+    event EndedPrivateSale(uint256 timestamp);
+
+    enum SaleStatus {
+        NOT_STARTED,
+        PRIVATE_SALE,
+        PUBLIC_SALE
+    }
 
     string private baseURI;
     uint256 private constant MAX_SUPPLY = 2500;
@@ -26,6 +34,7 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
     uint256 private _publicSalePrice;
     uint96 private _royaltyFee;
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    SaleStatus private _saleStatus;
 
     constructor(
         string memory name_, 
@@ -67,12 +76,28 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
         return _royaltyFee;
     }
 
-    function getPrivateSalePrice() view external returns(uint256) {
-        return _privateSalePrice;
+    function getSaleStatus() view external returns (SaleStatus) {
+        return _saleStatus;
     }
 
-    function getPublicSalePrice() view external returns(uint256) {
-        return _publicSalePrice;
+    function getSalePrice() view external returns(uint256) {
+        if(_saleStatus == SaleStatus.PUBLIC_SALE) {
+            return _publicSalePrice;
+        } else {
+            return _privateSalePrice;
+        }
+    }
+
+    function startPrivateSale() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_saleStatus == SaleStatus.NOT_STARTED, "Only allowed if status is not started");
+        _saleStatus == SaleStatus.PRIVATE_SALE;
+        emit StartedPrivateSale(block.timestamp);
+    }
+
+    function endPrivateSale() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_saleStatus == SaleStatus.PRIVATE_SALE, "Only allowed if status is private sale");
+        _saleStatus == SaleStatus.PUBLIC_SALE;
+        emit EndedPrivateSale(block.timestamp);
     }
 
     /**
@@ -111,6 +136,7 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
      */
     function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) nonReentrant {
         require(to.code.length == 0, "Can not mint NFT to contract address");
+        require(_saleStatus != SaleStatus.NOT_STARTED, "Sale is not started yet");
         require(quantity <= 10, "Can not mint NFTs more than 10 NFTs at one transaction");
         uint256 currentSupply = _owners.length;
         require(currentSupply + quantity <= MAX_SUPPLY, "Can not mint NFT more than MAX_SUPPLY");
