@@ -55,19 +55,19 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
     }
 
     function setPrivateSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(price <= 1000, "Should not exceed 1000");
+        require(price <= 1000 * 1e6, "Should not exceed 1000");
         _privateSalePrice = price;
         emit SetPrivateSalePrice(price);
     }
 
     function setPublicSalePrice(uint256 price) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(price <= 1000, "Should not exceed 1000");
+        require(price <= 1000 * 1e6, "Should not exceed 1000");
         _publicSalePrice = price;
         emit SetPublicSalePrice(price);
     }
     
     function setRoyaltyFee(uint96 fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(fee < 10000, "Incorrect royalty fee");
+        require(fee < 100 * 1e2, "Incorrect royalty fee");
         _royaltyFee = fee;
         emit SetRoyaltyFee(fee);
     }

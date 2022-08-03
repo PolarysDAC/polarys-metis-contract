@@ -15,8 +15,8 @@ async function main () {
   let nftContract: PolarysNFTContract
 
   const DECIMALS = 6;
-  const PRIVATE_SALE_PRICE = 200.5;
-  const PUBLIC_SALE_PRICE = 220.5;
+  const PRIVATE_SALE_PRICE = 250;
+  const PUBLIC_SALE_PRICE = 300;
   const ROYALTY_FEE = 250;   // 2.5% royalty fee
 
   const minterWalletAddress = String(process.env.MINTER_WALLET)
@@ -33,11 +33,8 @@ async function main () {
     .connect(signer).setPublicSalePrice(getBigNumber(PUBLIC_SALE_PRICE, DECIMALS));
   await transaction2.wait();
   
-  const newPrivatePrice = formatUnits(await nftContract.getPrivateSalePrice(), DECIMALS);
-  console.log("privateSale price after set price: ", newPrivatePrice);
-
-  const newPublicPrice = formatUnits(await nftContract.getPublicSalePrice(), DECIMALS);
-  console.log("pubicSale price after set price: ", newPublicPrice);
+  const salePrice = formatUnits(await nftContract.getSalePrice(), DECIMALS);
+  console.log("Sale Price: ", salePrice);
 
   
   await (
