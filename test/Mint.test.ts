@@ -41,72 +41,74 @@ describe('Test mint on the mainnet or testnet', () => {
 
   describe('Test: setup minter role', async () => {
     it('Setup Minter role', async () => {
-      polarysNFTContract.setupMinterRole(ownerAddress)
+      await polarysNFTContract.setupMinterRole(ownerAddress)
+      await polarysNFTContract.startPrivateSale()
+      const saleStatus = await polarysNFTContract.getSaleStatus()
     })
   })
 
-  describe('Test: set price', async () => {
-    it('SetPrivateSalePrice', async () => {
-      await expect(
-        polarysNFTContract
-        .setPrivateSalePrice(getBigNumber(privateSalePrice, decimal))
-      ).to.emit(polarysNFTContract, "SetPrivateSalePrice")
-      .withArgs(getBigNumber(privateSalePrice, decimal));
-
-      await expect(
-        polarysNFTContract
-        .setPublicSalePrice(getBigNumber(publicSalePrice, decimal))
-      ).to.emit(polarysNFTContract, "SetPublicSalePrice")
-      .withArgs(getBigNumber(publicSalePrice, decimal));
-    })
-  })
-
-  describe('Test: set royalty fee', async () => {
-    it('SetRoyaltyFee', async () => {
-      await expect(
-        polarysNFTContract
-        .setRoyaltyFee(royaltyFee)
-      ).to.emit(polarysNFTContract, "SetRoyaltyFee")
-      .withArgs(Number(royaltyFee));
-    })
-  })
-
-  // describe('Test: deposit Metis', async () => {
-  //   it('Deposit Metis', async () => {
+  // describe('Test: set price', async () => {
+  //   it('SetPrivateSalePrice', async () => {
   //     await expect(
   //       polarysNFTContract
-  //       .depositMetis({value: parseEther(depositMetisAmount)})
-  //     ).to.emit(polarysNFTContract, "DepositedMetis")
-  //     .withArgs(getBigNumber(depositMetisAmount))
+  //       .setPrivateSalePrice(getBigNumber(privateSalePrice, decimal))
+  //     ).to.emit(polarysNFTContract, "SetPrivateSalePrice")
+  //     .withArgs(getBigNumber(privateSalePrice, decimal));
+
+  //     await expect(
+  //       polarysNFTContract
+  //       .setPublicSalePrice(getBigNumber(publicSalePrice, decimal))
+  //     ).to.emit(polarysNFTContract, "SetPublicSalePrice")
+  //     .withArgs(getBigNumber(publicSalePrice, decimal));
   //   })
   // })
 
-  describe('Test: set base URI', async () => {
-    it('Set baseURI', async () => {
-      await expect(
-        polarysNFTContract
-        .setBaseURI(baseURI)
-      ).to.emit(polarysNFTContract, "SetBaseURI")
-      .withArgs(baseURI)
-    })
-  })
+  // describe('Test: set royalty fee', async () => {
+  //   it('SetRoyaltyFee', async () => {
+  //     await expect(
+  //       polarysNFTContract
+  //       .setRoyaltyFee(royaltyFee)
+  //     ).to.emit(polarysNFTContract, "SetRoyaltyFee")
+  //     .withArgs(Number(royaltyFee));
+  //   })
+  // })
 
-  describe('Test: Mint NFT', async () => {
-    it('Mint NFTs to user', async () => {
-      console.log('minter balance before action: ', formatUnits(await owner.getBalance()));
-      // for (let i  = 0; i < 250; i ++) {
-      //   await expect(
-      //     polarysNFTContract
-      //     .mint(user3, 10)
-      //   ).to.emit(polarysNFTContract, "NFTMinted")
-      //   .withArgs(user3, 10)
-      // }
-      const res = await polarysNFTContract.estimateGas.mint(user3, 10);
-      console.log(res);
-      let tx = await (await polarysNFTContract.mint(user3, 10)).wait();
-      console.log(tx);
+  // // describe('Test: deposit Metis', async () => {
+  // //   it('Deposit Metis', async () => {
+  // //     await expect(
+  // //       polarysNFTContract
+  // //       .depositMetis({value: parseEther(depositMetisAmount)})
+  // //     ).to.emit(polarysNFTContract, "DepositedMetis")
+  // //     .withArgs(getBigNumber(depositMetisAmount))
+  // //   })
+  // // })
 
-      console.log('minter balance after action: ', formatUnits(await owner.getBalance()));
-    })
-  })
+  // describe('Test: set base URI', async () => {
+  //   it('Set baseURI', async () => {
+  //     await expect(
+  //       polarysNFTContract
+  //       .setBaseURI(baseURI)
+  //     ).to.emit(polarysNFTContract, "SetBaseURI")
+  //     .withArgs(baseURI)
+  //   })
+  // })
+
+  // describe('Test: Mint NFT', async () => {
+  //   it('Mint NFTs to user', async () => {
+  //     console.log('minter balance before action: ', formatUnits(await owner.getBalance()));
+  //     // for (let i  = 0; i < 250; i ++) {
+  //     //   await expect(
+  //     //     polarysNFTContract
+  //     //     .mint(user3, 10)
+  //     //   ).to.emit(polarysNFTContract, "NFTMinted")
+  //     //   .withArgs(user3, 10)
+  //     // }
+  //     const res = await polarysNFTContract.estimateGas.mint(user3, 10);
+  //     console.log(res);
+  //     let tx = await (await polarysNFTContract.mint(user3, 10)).wait();
+  //     console.log(tx);
+
+  //     console.log('minter balance after action: ', formatUnits(await owner.getBalance()));
+  //   })
+  // })
 });

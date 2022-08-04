@@ -10,7 +10,13 @@ import "./ERC721B.sol";
 contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard {
 
     using Strings for uint256;
-
+    
+    enum SaleStatus {
+        NOT_STARTED,
+        PRIVATE_SALE,
+        PUBLIC_SALE
+    }
+    
     event DepositedMetis(uint256 indexed amount);
     event NFTMinted(address indexed recipient, uint256 quantity);
     event SetPrivateSalePrice(uint256 price);
@@ -18,14 +24,9 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
     event SetBaseURI(string baseURI);
     event SetRoyaltyFee(uint96 fee);
     event WithdrewMetis(address indexed to, uint256 amount);
-    event StartedPrivateSale(uint256 timestamp);
-    event EndedPrivateSale(uint256 timestamp);
-
-    enum SaleStatus {
-        NOT_STARTED,
-        PRIVATE_SALE,
-        PUBLIC_SALE
-    }
+    event StartedPrivateSale(SaleStatus indexed saleStatus, uint256 timestamp);
+    event EndedPrivateSale(SaleStatus indexed saleStatus, uint256 timestamp);
+    
 
     string private baseURI;
     uint256 private constant MAX_SUPPLY = 2500;
@@ -90,14 +91,14 @@ contract PolarysNFTContract is ERC2981, ERC721B, AccessControl, ReentrancyGuard 
 
     function startPrivateSale() external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_saleStatus == SaleStatus.NOT_STARTED, "Only allowed if status is not started");
-        _saleStatus == SaleStatus.PRIVATE_SALE;
-        emit StartedPrivateSale(block.timestamp);
+        _saleStatus = SaleStatus.PRIVATE_SALE;
+        emit StartedPrivateSale(_saleStatus, block.timestamp);
     }
 
     function endPrivateSale() external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_saleStatus == SaleStatus.PRIVATE_SALE, "Only allowed if status is private sale");
-        _saleStatus == SaleStatus.PUBLIC_SALE;
-        emit EndedPrivateSale(block.timestamp);
+        _saleStatus = SaleStatus.PUBLIC_SALE;
+        emit EndedPrivateSale(_saleStatus, block.timestamp);
     }
 
     /**

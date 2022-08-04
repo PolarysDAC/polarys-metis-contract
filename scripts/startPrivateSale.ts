@@ -22,7 +22,8 @@ async function main () {
   const transaction1 = await nftContract
     .connect(signer).startPrivateSale();
   await transaction1.wait();
-  
+  const saleStatus = await nftContract.getSaleStatus()
+  console.log("saleStatus is: ", saleStatus)
 }
 
 main()
