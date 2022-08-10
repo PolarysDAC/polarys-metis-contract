@@ -20,6 +20,7 @@ async function main () {
   const ROYALTY_FEE = 250;   // 2.5% royalty fee
 
   const minterWalletAddress = String(process.env.MINTER_WALLET)
+  const baseURI = String(process.env.BASE_URI)
   const nftContractAddress = (await load('PolarysNFTContract')).address
 
   nftContract = (await ethers.getContractAt("PolarysNFTContract", nftContractAddress)) as PolarysNFTContract;
@@ -49,6 +50,13 @@ async function main () {
     .connect(signer)
     .setRoyaltyFee(ROYALTY_FEE)
   ).wait();
+  
+  await (
+    await nftContract
+    .connect(signer)
+    .setBaseURI(baseURI)
+  ).wait();
+
   const newRoyaltyFee = formatUnits(await nftContract.getRoyaltyFee(), 0);
   console.log("royalty fee: ", newRoyaltyFee);
 }

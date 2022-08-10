@@ -14,8 +14,8 @@ describe('Test mint on the mainnet or testnet', () => {
   let owner: Signer
   let ownerAddress: string
 
-  const privateSalePrice = '200.5';
-  const publicSalePrice = '225.5';
+  const privateSalePrice = '250';
+  const publicSalePrice = '300';
   const decimal = 6;
   const royaltyFee = '250';   //2.5%
   const baseURI = "https://bafybeihsrtpoz7vnzyjsrhbhzhxaih6mamykhyenfbjhutscve4kefvvuu.ipfs.nftstorage.link/"
@@ -42,6 +42,14 @@ describe('Test mint on the mainnet or testnet', () => {
   describe('Test: setup minter role', async () => {
     it('Setup Minter role', async () => {
       await polarysNFTContract.setupMinterRole(ownerAddress)
+      await polarysNFTContract
+        .setPrivateSalePrice(getBigNumber(privateSalePrice, decimal));
+      
+      await polarysNFTContract
+        .setPublicSalePrice(getBigNumber(publicSalePrice, decimal));
+      await polarysNFTContract.setRoyaltyFee(royaltyFee)
+      
+      await polarysNFTContract.setBaseURI(baseURI)
       await polarysNFTContract.startPrivateSale()
       const saleStatus = await polarysNFTContract.getSaleStatus()
     })
@@ -93,22 +101,22 @@ describe('Test mint on the mainnet or testnet', () => {
   //   })
   // })
 
-  // describe('Test: Mint NFT', async () => {
-  //   it('Mint NFTs to user', async () => {
-  //     console.log('minter balance before action: ', formatUnits(await owner.getBalance()));
-  //     // for (let i  = 0; i < 250; i ++) {
-  //     //   await expect(
-  //     //     polarysNFTContract
-  //     //     .mint(user3, 10)
-  //     //   ).to.emit(polarysNFTContract, "NFTMinted")
-  //     //   .withArgs(user3, 10)
-  //     // }
-  //     const res = await polarysNFTContract.estimateGas.mint(user3, 10);
-  //     console.log(res);
-  //     let tx = await (await polarysNFTContract.mint(user3, 10)).wait();
-  //     console.log(tx);
+  describe('Test: Mint NFT', async () => {
+    it('Mint NFTs to user', async () => {
+      console.log('minter balance before action: ', formatUnits(await owner.getBalance()));
+      // for (let i  = 0; i < 250; i ++) {
+      //   await expect(
+      //     polarysNFTContract
+      //     .mint(user3, 10)
+      //   ).to.emit(polarysNFTContract, "NFTMinted")
+      //   .withArgs(user3, 10)
+      // }
+      const res = await polarysNFTContract.estimateGas.mint(user3, 10);
+      console.log(formatUnits(res));
+      let tx = await (await polarysNFTContract.mint(user3, 10)).wait();
+      // console.log(tx);
 
-  //     console.log('minter balance after action: ', formatUnits(await owner.getBalance()));
-  //   })
-  // })
+      console.log('minter balance after action: ', formatUnits(await owner.getBalance()));
+    })
+  })
 });
